@@ -34,6 +34,7 @@ type ParseResult = {
 type LoadStatus = 'idle' | 'reading' | 'ready' | 'error';
 
 const queryClient = new QueryClient();
+const BRAND_LOGO = `${import.meta.env.BASE_URL}logo.png`;
 
 const SAMPLE_CSV = `product,store,price,url
 Tropical Sun Rice 5kg,Melcom,82.5,https://melcom.com
@@ -337,7 +338,7 @@ function Home() {
   };
 
   const loadSample = () => {
-    void loadText(SAMPLE_CSV, 'World Price Ghana sample.csv');
+    void loadText(SAMPLE_CSV, 'PriceWorld Ghana sample.csv');
   };
 
   return (
@@ -345,9 +346,9 @@ function Home() {
       <header className="border-b border-border/80 bg-card/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 sm:px-8 lg:px-10">
           <div className="flex items-center gap-3" data-testid="brand-world-price">
-            <div className="grid size-10 place-items-center rounded-xl bg-primary text-lg font-bold text-primary-foreground shadow-sm">W</div>
+            <img className="size-12 rounded-2xl object-cover shadow-sm ring-1 ring-black/5" src={BRAND_LOGO} alt="PriceWorld logo" />
             <div>
-              <div className="font-serif text-lg font-semibold leading-none tracking-tight">World Price</div>
+              <div className="font-serif text-lg font-semibold leading-none tracking-tight">PriceWorld</div>
               <div className="mt-1 font-mono text-[9px] font-medium uppercase tracking-[.24em] text-accent">Ghana</div>
             </div>
           </div>
@@ -487,7 +488,7 @@ function Home() {
                                   <span className={`font-mono text-base font-medium ${offerIndex === 0 ? 'text-[#19775d]' : 'text-foreground'}`} data-testid={`text-price-${product.key}-${normalizeProduct(offer.store)}`}>{formatPrice(offer.price)}</span>
                                   <div className="flex items-center gap-2">
                                     {offer.url ? <a href={offer.url} target="_blank" rel="noopener noreferrer" className="safe-focus inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-semibold hover:bg-secondary" data-testid={`link-store-${product.key}-${normalizeProduct(offer.store)}`}><Link2 className="size-3.5" /> Store <ExternalLink className="size-3" /></a> : <span className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs text-muted-foreground" title="This row did not include a safe HTTPS link"><Link2 className="size-3.5" /> No link</span>}
-                                    <button className="safe-focus inline-flex items-center gap-1.5 rounded-lg bg-[#238a6d] px-3 py-2 text-xs font-semibold text-white hover:bg-[#19775d]" onClick={() => { const message = `Price check: ${product.name} at ${offer.store} is ${formatPrice(offer.price)}. ${offer.url ? `Check it here: ${offer.url}` : 'Shared from World Price Ghana.'}`; window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer'); }} data-testid={`button-share-${product.key}-${normalizeProduct(offer.store)}`}><span className="font-bold">WA</span> Share</button>
+                                     <button className="safe-focus inline-flex items-center gap-1.5 rounded-lg bg-[#238a6d] px-3 py-2 text-xs font-semibold text-white hover:bg-[#19775d]" onClick={() => { const message = `Price check: ${product.name} at ${offer.store} is ${formatPrice(offer.price)}. ${offer.url ? `Check it here: ${offer.url}` : 'Shared from PriceWorld Ghana.'}`; window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer'); }} data-testid={`button-share-${product.key}-${normalizeProduct(offer.store)}`}><span className="font-bold">WA</span> Share</button>
                                   </div>
                                 </div>
                               </div>
@@ -504,6 +505,7 @@ function Home() {
             <footer className="mt-12 flex flex-col gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
               <p className="flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-[#238a6d]" /> Browser-only price checking for Ghana.</p>
               <p className="flex items-center gap-1.5"><ArrowUpDown className="size-3.5" /> Prices are supplied by your CSV.</p>
+              <p className="text-[10px] font-medium tracking-wide text-muted-foreground/80">by Anakwah Samuel Kwabena Atuah</p>
             </footer>
           </section>
         </main>
