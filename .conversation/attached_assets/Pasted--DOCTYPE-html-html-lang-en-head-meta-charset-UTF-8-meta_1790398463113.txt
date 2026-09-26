@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>World Price Ghana - 1M PRO</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body class="bg-[#F6FFF9] min-h-screen font-sans">
+<header class="bg-white shadow sticky top-0 z-10 p-4 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-[#00A86B] rounded-lg flex items-center justify-center text-white font-bold">PW</div>
+<span class="font-bold">World Price <span class="text-[#00A86B]">Ghana</span></span>
+<span>🇬🇭</span>
+</div>
+<div id="countBadge" class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">0 products loaded</div>
+</header>
+<main class="max-w-5xl mx-auto p-4 space-y-4">
+<div id="dropZone" class="border-2 border-dashed border-green-300 bg-white rounded-2xl p-6 text-center cursor-pointer">
+<p class="font-bold">Step 1: Drop your Ghana_1M_REAL_PRICES.csv here</p>
+<p id="parseStatus" class="text-sm text-gray-500 mt-2">or click to upload. Also try sample data.</p>
+<input type="file" id="csvFile" accept=".csv" class="hidden">
+<div class="mt-3 flex gap-2 justify-center">
+<button onclick="document.getElementById('csvFile').click()" class="bg-[#00A86B] text-white px-4 py-2 rounded-xl text-sm">Upload CSV</button>
+<button id="loadSample" class="bg-gray-100 px-4 py-2 rounded-xl text-sm">Load Sample 1000</button>
+</div>
+</div>
+<div class="bg-white rounded-2xl p-4 shadow">
+<input id="searchInput" placeholder="Step 2: Search product e.g. Rice, Milo, Indomie..." class="w-full p-3 border rounded-xl outline-none focus:border-[#00A86B]">
+<p id="searchMeta" class="text-xs text-gray-500 mt-2"></p>
+</div>
+<div id="results" class="grid gap-3"></div>
+</main>
+<script>
+let ROWS = [];
+let INDEX = new Map();
+let COUNT_BADGE = document.getElementById('countBadge');
+let PARSE_STATUS = document.getElementById('parseStatus');
+let SEARCH_INPUT = document.getElementById('searchInput');
+let RESULTS = document.getElementById('results');
+let SEARCH_META = document.getElementById('searchMeta');
+let DROP_ZONE = document.getElementById('dropZone');
+function fmt(n){ if(n==null || isNaN(n)) return ''; return Number(n).toLocaleString('en-GH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function updateBadge(){ const unique = INDEX.size; COUNT_BADGE.textContent = `${unique.toLocaleString()} products loaded`; }
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function buildIndex(){
+  INDEX.clear();
+  ROWS.forEach(r=>{
+    let key = (r.product_name||'').toLowerCase().trim();
+    if(!key) return;
+    if(!INDEX.has(key)) INDEX.set(key, []);
+    INDEX.get(key).push(r);
+  });
+  updateBadge();
+  PARSE_STATUS.textContent = `Parsed ${ROWS.length} rows, ${INDEX.size} unique products`;
+}
+function handleFiles(file){
+  PARSE_STATUS.textContent = 'Parsing 1M file... please wait 5-10 sec';
+  Papa.parse(file, {
+    header:true, skipEmptyLines:true,
+    complete: function(res){
+      ROWS = res.data.map(r=>({
+        store: r.store||r.Store||'Unknown',
+        product_name: r.product_name||r.name||r.product||'',
+        price_ghs: parseFloat(r.price_ghs||r.price||r.melcom_price_GHS||0)||0,
+        old_price_ghs: parseFloat(r.old_price_ghs||0)||0,
+        category: r.category||'',
+        url: r.url||'#'
+      })).filter(r=>r.product_name);
+      buildIndex();
+    }
+  });
+}
+DROP_ZONE.addEventListener('click', ()=> document.getElementById('csvFile').click());
+DROP_ZONE.addEventListener('dragover', e=>{ e.preventDefault(); DROP_ZONE.classList.add('bg-green-50'); });
+DROP_ZONE.addEventListener('dragleave', ()=> DROP_ZONE.classList.remove('bg-green-50'));
+DROP_ZONE.addEventListener('drop', e=>{ e.preventDefault(); DROP_ZONE.classList.remove('bg-green-50'); if(e.dataTransfer.files[0]) handleFiles(e.dataTransfer.files[0]); });
+document.getElementById('csvFile').addEventListener('change', e=>{ if(e.target.files[0]) handleFiles(e.target.files[0]); });
+document.getElementById('loadSample').addEventListener('click', ()=>{
+  ROWS = [
+    {store:'Melcom', product_name:'Rice 5kg Royal Aroma', price_ghs:185, old_price_ghs:210, category:'Rice', url:'https://melcom.com'},
+    {store:'Shoprite', product_name:'Rice 5kg Royal Aroma', price_ghs:195, old_price_ghs:0, category:'Rice', url:'https://shoprite.com.gh'},
+    {store:'China Mall', product_name:'Rice 5kg Royal Aroma', price_ghs:168, old_price_ghs:185, category:'Rice', url:'https://jumia.com.gh'},
+    {store:'Melcom', product_name:'Milo 400g', price_ghs:88, old_price_ghs:95, category:'Milo', url:'https://melcom.com'},
+    {store:'Shoprite', product_name:'Milo 400g', price_ghs:92, old_price_ghs:0, category:'Milo', url:'#'},
+    {store:'China Mall', product_name:'Milo 400g', price_ghs:85, old_price_ghs:0, category:'Milo', url:'#'},
+    {store:'Melcom', product_name:'Indomie 70g x 5', price_ghs:35, old_price_ghs:0, category:'Indomie', url:'#'},
+    {store:'China Mall', product_name:'Indomie 70g x 5', price_ghs:29, old_price_ghs:35, category:'Indomie', url:'#'},
+  ];
+  buildIndex();
+});
+function search(q){
+  if(!q) { RESULTS.innerHTML=''; SEARCH_META.textContent=''; return; }
+  const low = q.toLowerCase();
+  const matches = [];
+  for(let [key, rows] of INDEX){
+    if(key.includes(low)){
+      matches.push({key, rows});
+      if(matches.length>=50) break;
+    }
+  }
+  SEARCH_META.textContent = `Found ${matches.length} products for "${q}"`;
+  RESULTS.innerHTML = matches.map(m=>{
+    const best = m.rows.slice().sort((a,b)=>a.price_ghs-b.price_ghs)[0];
+    return `<div class="bg-white rounded-2xl p-4 shadow">
+      <div class="flex justify-between items-start">
+        <h3 class="font-bold">${escapeHtml(m.key)}</h3>
+        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">BEST: ${escapeHtml(best.store)} GH₵ ${fmt(best.price_ghs)}</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3">
+        ${m.rows.map(r=>{
+          const isBest = r===best;
+          return `<div class="border rounded-xl p-3 ${isBest?'border-green-500 bg-green-50':'bg-gray-50'}">
+            <div class="text-xs font-bold ${r.store.includes('Melcom')?'text-red-600': r.store.includes('Shoprite')?'text-red-500':'text-yellow-600'}">${escapeHtml(r.store)}</div>
+            <div class="font-bold text-lg">GH₵ ${fmt(r.price_ghs)}</div>
+            ${r.old_price_ghs?`<div class="text-xs line-through text-gray-400">GH₵ ${fmt(r.old_price_ghs)}</div>`:''}
+            <div class="flex gap-2 mt-2">
+              <a href="${escapeHtml(r.url)}" target="_blank" class="text-xs bg-black text-white px-2 py-1 rounded">Live</a>
+              <a href="https://wa.me/?text=${encodeURIComponent('Price for '+r.product_name+' at '+r.store+': GH₵ '+r.price_ghs)}" target="_blank" class="text-xs bg-green-600 text-white px-2 py-1 rounded">WhatsApp</a>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+SEARCH_INPUT.addEventListener('input', e=> search(e.target.value));
+</script>
+</body>
+</html>

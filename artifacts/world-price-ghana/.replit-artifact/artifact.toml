@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "World Price Ghana"
+description = "A privacy-first Ghana price comparison app that lets shoppers upload a CSV, search products, compare prices across Melcom, Shoprite, and China Mall, and share the best deals."
+version = "1.0.0"
+id = "artifacts/world-price-ghana"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20803
+
+[services.development]
+run = "pnpm --filter @workspace/world-price-ghana run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/world-price-ghana", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/world-price-ghana/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20803"
+BASE_PATH = "/"

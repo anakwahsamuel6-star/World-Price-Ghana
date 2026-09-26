@@ -1,6 +1,6 @@
-# [Project name]
+# World Price Ghana
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Browser-only Ghana price comparison for searching a user-provided CSV and finding the cheapest option across familiar retailers.
 
 ## Run & Operate
 
@@ -22,23 +22,33 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/world-price-ghana/src/App.tsx` — client-side CSV parsing, validation, search, comparison, sharing, and page UI
+- `artifacts/world-price-ghana/src/index.css` — local Tailwind theme and visual system
+- `artifacts/world-price-ghana/public/world-price-ghana-sample.csv` — downloadable sample dataset
+- `artifacts/world-price-ghana/index.html` — document metadata and social previews
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Price lists stay in the browser; there is no account, upload endpoint, database, or server-side storage.
+- CSV rows are normalized for lookup while preserving the original product-name casing for display.
+- Only absolute `https:` links survive CSV parsing; unsafe, malformed, and non-secure links are shown as unavailable.
+- Local Tailwind Vite integration is used instead of the runtime Tailwind CDN.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Upload or drag and drop a CSV with product, store, price, and optional URL columns.
+- Accept common header aliases, skip blank/malformed rows, report unsafe links, and show progress while reading.
+- Search products with forgiving matching, compare stores cheapest-first, format values as Ghana Cedi, and share offers on WhatsApp.
+- Load a truthful sample dataset without sending any data to a server.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Prioritize robust CSV upload behavior, safe URLs, Ghana Cedi formatting, retailer branding, and a polished production-ready UI.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Keep the upload control's stop-propagation handlers intact; the drop zone and file input should not reopen the picker through bubbling.
+- Use `PORT` and `BASE_PATH` from the managed artifact workflow for local preview/build commands.
 
 ## Pointers
 
